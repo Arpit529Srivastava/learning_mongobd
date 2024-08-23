@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type movies struct {
@@ -152,20 +152,40 @@ func deleteMovieByID(c *gin.Context) {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "movie not found"})
 		return
 	}
-
-	// Remove the movie from the slice
 	film = append(film[:index], film[index+1:]...)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "movie deleted"})
 }
-//creating a movie list
-func createMovie(c *gin.Context){
+
+// creating a movie list
+func createMovie(c *gin.Context) {
 	var newMovie movies
-	if err := c.BindJSON(&newMovie); err!=nil{
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message":"incorrect Json format"})
+	if err := c.BindJSON(&newMovie); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "incorrect Json format"})
 		return
 	}
-	film=append(film,newMovie)
-	c.IndentedJSON(http.StatusOK, gin.H{"message":"movie added succesfully"})
+	film = append(film, newMovie)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "movie added succesfully"})
+}
+
+// updating the movies
+func UpdateMovie(c *gin.Context) {
+	//getting the id of the movie which i want to update
+	id := c.Param("id")
+	var update movies
+	if err := c.BindJSON(&update); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "can't be done in json/invaild json format"})
+		return
+	}
+	for i, m := range film {
+		if m.Id == id {
+			film[i] = update
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "movie updated successfully"})
+			return
+		}
+
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "cannot found the movie please added one"})
+
 }
 
 // Define the routes for the handler
@@ -176,5 +196,6 @@ func main() {
 	router.GET("/movies/name/:name", moviesByName)
 	router.DELETE("/movies/id/:id", deleteMovieByID)
 	router.POST("/movie/add", createMovie)
+	router.PUT("/movie/update/:id", UpdateMovie)
 	router.Run("localhost:9090")
 }
