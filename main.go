@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/tools/go/analysis/passes/nilfunc"
 )
 
 type movies struct {
@@ -86,13 +88,25 @@ var film = []movies{
 		Stars:        4,
 	},
 }
-//will fetch all the movies
+
+// will fetch all the movies
 func GetAllMovies(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, film)
 }
-//defining the routes for the handler
+
+// getting movie by ID
+func GetMoviesById(id string) (*movies, error) {
+	for i, j := range film {
+		if j.Id == id {
+			return &film[i], nil
+		}
+	}
+	return nil, errors.New("movie is not there in the fake db please and one with your id")
+}
+
+// defining the routes for the handler
 func main() {
-	router:= gin.Default()
+	router := gin.Default()
 	router.GET("/movies", GetAllMovies)
 	router.Run("localhost:9090")
 }
