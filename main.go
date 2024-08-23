@@ -157,6 +157,16 @@ func deleteMovieByID(c *gin.Context) {
 	film = append(film[:index], film[index+1:]...)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "movie deleted"})
 }
+//creating a movie list
+func createMovie(c *gin.Context){
+	var newMovie movies
+	if err := c.BindJSON(&newMovie); err!=nil{
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message":"incorrect Json format"})
+		return
+	}
+	film=append(film,newMovie)
+	c.IndentedJSON(http.StatusOK, gin.H{"message":"movie added succesfully"})
+}
 
 // Define the routes for the handler
 func main() {
@@ -165,5 +175,6 @@ func main() {
 	router.GET("/movies/id/:id", moviesByID)
 	router.GET("/movies/name/:name", moviesByName)
 	router.DELETE("/movies/id/:id", deleteMovieByID)
+	router.POST("/movie/add", createMovie)
 	router.Run("localhost:9090")
 }
