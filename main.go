@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/tools/go/analysis/passes/nilfunc"
 )
 
 type movies struct {
@@ -89,24 +88,58 @@ var film = []movies{
 	},
 }
 
-// will fetch all the movies
+// Fetch all movies
 func GetAllMovies(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, film)
 }
 
-// getting movie by ID
+// Fetch movie by ID
+func moviesByID(c *gin.Context) {
+	id := c.Param("id")
+	movie, err := GetMoviesById(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "movie not found"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, movie)
+}
+
+// Fetch movie by name
+func moviesByName(c *gin.Context) {
+	name := c.Param("name")
+	movie, err := GetMoviesByName(name)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "movie not found"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, movie)
+}
+
+// Get movie by ID
 func GetMoviesById(id string) (*movies, error) {
 	for i, j := range film {
 		if j.Id == id {
 			return &film[i], nil
 		}
 	}
-	return nil, errors.New("movie is not there in the fake db please and one with your id")
+	return nil, errors.New("movie not found")
 }
 
-// defining the routes for the handler
+// Get movie by name
+func GetMoviesByName(name string) (*movies, error) {
+	for i, j := range film {
+		if j.Name == name {
+			return &film[i], nil
+		}
+	}
+	return nil, errors.New("movie not found")
+}
+
+// Define the routes for the handler
 func main() {
 	router := gin.Default()
 	router.GET("/movies", GetAllMovies)
+	router.GET("/movies/id/:id", moviesByID)
+	router.GET("/movies/name/:name", moviesByName)
 	router.Run("localhost:9090")
 }
