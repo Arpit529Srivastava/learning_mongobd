@@ -175,3 +175,4 @@ func main() {
 	router.PUT("/movie/update/:id", UpdateMovie)
 	router.Run("localhost:9090")
 }
+//finally done with intergration
