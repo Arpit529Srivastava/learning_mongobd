@@ -1,5 +1,11 @@
 package main
 
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
 type movies struct {
 	Id           string `json:"id"`
 	Name         string `json:"name"`
@@ -79,4 +85,14 @@ var film = []movies{
 		Director:     "Olivia Clark",
 		Stars:        4,
 	},
+}
+//will fetch all the movies
+func GetAllMovies(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, film)
+}
+//defining the routes for the handler
+func main() {
+	router:= gin.Default()
+	router.GET("/movies", GetAllMovies)
+	router.Run("localhost:9090")
 }
