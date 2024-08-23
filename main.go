@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -125,6 +124,16 @@ func GetMoviesById(id string) (*movies, error) {
 	return nil, errors.New("movie not found")
 }
 
+// a extra function for deleting the movie
+func GetMoviesById_delete(id string) (int, error) {
+	for i, j := range film {
+		if j.Id == id {
+			return i, nil
+		}
+	}
+	return -1, errors.New("movie not found")
+}
+
 // Get movie by name
 func GetMoviesByName(name string) (*movies, error) {
 	for i, j := range film {
@@ -135,11 +144,26 @@ func GetMoviesByName(name string) (*movies, error) {
 	return nil, errors.New("movie not found")
 }
 
+// for deleting the movie by using their id
+func deleteMovieByID(c *gin.Context) {
+	id := c.Param("id")
+	index, err := GetMoviesById_delete(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "movie not found"})
+		return
+	}
+
+	// Remove the movie from the slice
+	film = append(film[:index], film[index+1:]...)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "movie deleted"})
+}
+
 // Define the routes for the handler
 func main() {
 	router := gin.Default()
 	router.GET("/movies", GetAllMovies)
 	router.GET("/movies/id/:id", moviesByID)
 	router.GET("/movies/name/:name", moviesByName)
+	router.DELETE("/movies/id/:id", deleteMovieByID)
 	router.Run("localhost:9090")
 }
